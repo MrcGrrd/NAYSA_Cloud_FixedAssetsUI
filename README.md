@@ -1,0 +1,1 @@
+# NAYSA_Cloud_FixedAssetsUI
