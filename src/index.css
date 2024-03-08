@@ -21,7 +21,7 @@ body {
 .dialog-content {
   display: flex;
   flex-direction: column;
-  gap: 1rem; /* Adjust the gap between InputText components */
+  gap: 1rem;
 }
 
 .input-row {
@@ -38,6 +38,20 @@ body {
 
 .input-column:last-child {
   margin-right: 0;
+}
+
+.action-buttons {
+  display: flex;
+  justify-content: center;
+}
+
+.p-button-text {
+  margin-left: 0.5rem;
+}
+
+.custom-green-button {
+  background-color: #22c55e !important;
+  border-color: #22c55e !important;
 }
 
 

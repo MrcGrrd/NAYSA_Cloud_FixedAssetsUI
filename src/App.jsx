@@ -7,7 +7,8 @@ import { Dialog } from 'primereact/dialog';
 import { SplitButton } from 'primereact/splitbutton';
 import { Tooltip } from 'primereact/tooltip';
 import { saveAs } from 'file-saver';
-
+import Swal from 'sweetalert2'; 
+    
 import './App.css';
 
 export default function App() {
@@ -73,7 +74,6 @@ export default function App() {
     };
 
     const handleUpdateInsert = () => {
-        // Check if any of the input fields are empty
         if (
             formData.FACATEG_CODE.trim() === '' ||
             formData.FACATEG_NAME.trim() === '' ||
@@ -89,7 +89,7 @@ export default function App() {
             alert('Please fill in all required fields');
             return;
         }
-
+    
         if (selectedRow) {
             const updatedData = data.map(row => {
                 if (row.FACATEG_CODE === selectedRow.FACATEG_CODE) {
@@ -101,7 +101,7 @@ export default function App() {
         } else {
             setData(prevState => [...prevState, formData]);
         }
-
+    
         setFormData({
             FACATEG_CODE: '',
             FACATEG_NAME: '',
@@ -114,6 +114,11 @@ export default function App() {
             SALESACCT_CODE: '',
             CLEARINGACCT_CODE: ''
         });
+        Swal.fire(
+            'Success!',
+            'Data has been updated/inserted successfully.',
+            'success'
+        );
 
         setDisplayDialog(false);
     };
@@ -132,47 +137,58 @@ export default function App() {
         setDisplayDialog(true);
     };
 
-    const handleDelete = async (rowData) => {
-        try {
-            if (rowData && rowData.id) {
-                const response = await fetch(`http://localhost:8000/api/delete/${rowData.id}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                });
-    
-            } else {
-                throw new Error('Invalid rowData: id is missing');
+    const handleDelete = (rowData) => {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: 'You will not be able to recover this data!',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, Delete It!',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const updatedData = data.filter(row => row !== rowData);
+                setData(updatedData);
+                Swal.fire(
+                    'Deleted!',
+                    'Your data has been deleted.',
+                    'success'
+                );
             }
-        } catch (error) {
-            console.error('Error:', error);
-            alert('Error occurred while deleting data');
-        }
+        });
     };
     
 
     const exportCSV = () => {
         dt.current.exportCSV();
+        Swal.fire(
+            'Success!',
+            'CSV file has been exported successfully.',
+            'success'
+        );
     };
-
+    
     const exportExcel = () => {
         import('xlsx').then((xlsx) => {
             const worksheet = xlsx.utils.json_to_sheet(data);
             const workbook = xlsx.utils.book_new();
             xlsx.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
-
+    
             const excelBuffer = xlsx.write(workbook, {
                 type: 'array',
                 bookType: 'xlsx',
             });
-
             const blob = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
             saveAs(blob, 'FixedAssets.xlsx');
+            Swal.fire(
+                'Success!',
+                'Excel file has been exported successfully.',
+                'success'
+            );
         });
     };
-
-
+    
     const exportPdf = () => {
         import('jspdf').then((jsPDF) => {
             import('jspdf-autotable').then((module) => {
@@ -180,9 +196,15 @@ export default function App() {
                 const doc = new jsPDF.default(0, 0);
                 doc.autoTable({ columns: exportColumns, body: data });
                 doc.save('FixedAssets.pdf');
+                Swal.fire(
+                    'Success!',
+                    'PDF file has been exported successfully.',
+                    'success'
+                );
             });
         });
     };
+    
 
 
     const exportItems = [
@@ -244,8 +266,23 @@ export default function App() {
                     <Column field="ARACCT_CODE" header="AR Account Code" sortable style={{ width: '20%' }}></Column>
                     <Column field="SALESACCT_CODE" header="Sales Account Code" sortable style={{ width: '20%' }}></Column>
                     <Column field="CLEARINGACCT_CODE" header="Clearing Account Code" sortable style={{ width: '20%' }}></Column>
-                    <Column headerStyle={{ width: '5rem' }} body={(rowData) => <Button icon="pi pi-pencil" onClick={() => handleEdit(rowData)} className="p-button-rounded p-button-success" />} />
-                    <Column headerStyle={{ width: '5rem' }} body={(rowData) => <Button icon="pi pi-trash" onClick={() => handleDelete(rowData)} className="p-button-rounded p-button-danger" />} />
+                    <Column
+                        body={(rowData) => (
+                            <div className="action-buttons">
+                                <Button
+                                    icon="pi pi-pencil"
+                                    className="p-button-rounded p-button-warning mx-2 custom-green-button"
+                                    onClick={() => handleEdit(rowData)}
+                                />
+                                <Button
+                                    icon="pi pi-trash"
+                                    className="p-button-rounded p-button-danger "
+                                    onClick={() => handleDelete(rowData)}
+                                />
+                            </div>
+                        )}
+                        style={{ textAlign: 'center', width: '150px', position: 'sticky', right: '0', zIndex: '1', backgroundColor: 'white' }}
+                    />
                 </DataTable>
             </div>
         </div>
