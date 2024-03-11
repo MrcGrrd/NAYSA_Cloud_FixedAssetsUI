@@ -29,7 +29,11 @@ export default function App() {
     });
     const [displayDialog, setDisplayDialog] = useState(false);
     const [selectedRow, setSelectedRow] = useState(null);
+    const [modalVisible, setModalVisible] = useState(false);
+    const [modalData, setModalData] = useState([]);
     const dt = useRef(null);
+    const [selectedFacategName, setSelectedFacategName] = useState(null);
+    const [selectedFacategCode, setSelectedFacategCode] = useState(null);
 
     const exportColumns = [
         { title: "Category Code", dataKey: "FACATEG_CODE" },
@@ -122,7 +126,8 @@ export default function App() {
 
         setDisplayDialog(false);
     };
-
+    
+    
     const showDialog = () => {
         setDisplayDialog(true);
     };
@@ -205,8 +210,6 @@ export default function App() {
         });
     };
     
-
-
     const exportItems = [
         { label: 'CSV', command: exportCSV },
         { label: 'Excel', command: exportExcel },
@@ -214,7 +217,7 @@ export default function App() {
     ];
 
     const header = (
-        <div className="p-input-icon-left mb-4" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div className="p-input-icon-left " style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div style={{ position: 'relative' }}>
                 <i className="pi pi-search" style={{ position: 'absolute', left: '0.5rem', top: '50%', transform: 'translateY(-50%)' }} />
                 <InputText type="search" value={globalFilter} onChange={handleGlobalFilterChange} placeholder="Search..." style={{ paddingLeft: '2rem' }} />
@@ -226,64 +229,130 @@ export default function App() {
         </div>
     );
 
+    const handleSearchModalOpen = async () => {
+        try {
+            const response = await fetch('http://localhost:8000/api/index');
+            if (!response.ok) {
+                throw new Error('Failed to fetch data');
+            }
+            const responseData = await response.json();
+            setModalData(responseData.data);
+            setModalVisible(true);
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
+    };
+
+    const handleModalClose = () => {
+        setModalVisible(false);
+        setFormData(prevState => ({
+            ...prevState,
+            FACATEG_CODE: selectedFacategCode,
+            FACATEG_NAME: selectedFacategName
+        }));
+    };
+
+    const handleRowSelect = (rowData) => {
+        setFormData(prevState => ({
+            ...prevState,
+            FACATEG_CODE: rowData.FACATEG_CODE,
+            FACATEG_NAME: rowData.FACATEG_NAME
+        }));
+        setModalVisible(false);
+    };
+
     return (
-        <div className="card">
+        <div className='card'>
             <Tooltip target=".p-button-help" />
 
             {error && <p>Error fetching data: {error.message}</p>}
-            {header}
-            <Dialog visible={displayDialog} onHide={onHideDialog} header="Add/Edit Data" modal>
-                <div className="dialog-content">
-                    <div className="input-row">
-                        <div className="input-column">
-                            <InputText className="mb-2" name="FACATEG_CODE" value={formData.FACATEG_CODE} onChange={handleInputChange} placeholder="Category Code" />
-                            <InputText className="mb-2" name="FACATEG_NAME" value={formData.FACATEG_NAME} onChange={handleInputChange} placeholder="Category Name" />
-                            <InputText className="mb-2" name="ASSETACCT_CODE" value={formData.ASSETACCT_CODE} onChange={handleInputChange} placeholder="Asset Account Code" />
-                            <InputText className="mb-2" name="EXPACCT_CODE" value={formData.EXPACCT_CODE} onChange={handleInputChange} placeholder="Expense Account Code" />
-                            <InputText name="LOSSACCT_CODE" value={formData.LOSSACCT_CODE} onChange={handleInputChange} placeholder="Loss Account Code" />
-                        </div>
-                        <div className="input-column">
-                            <InputText className="mb-2" name="ACCUMACCT_CODE" value={formData.ACCUMACCT_CODE} onChange={handleInputChange} placeholder="Accumulated Account Code" />
-                            <InputText className="mb-2" name="GAINACCT_CODE" value={formData.GAINACCT_CODE} onChange={handleInputChange} placeholder="Gain Account Code" />
-                            <InputText className="mb-2" name="ARACCT_CODE" value={formData.ARACCT_CODE} onChange={handleInputChange} placeholder="Accounts Receivable Account Code" />
-                            <InputText className="mb-2" name="SALESACCT_CODE" value={formData.SALESACCT_CODE} onChange={handleInputChange} placeholder="Sales Account Code" />
-                            <InputText name="CLEARINGACCT_CODE" value={formData.CLEARINGACCT_CODE} onChange={handleInputChange} placeholder="Clearing Account Code" />
-                        </div>
-                    </div>
-                    <Button label="Update/Insert" className="p-button-raised p-button-success" onClick={handleUpdateInsert} />
+            <Dialog visible={displayDialog} onHide={onHideDialog} header="Add/Edit Data" modal style={{ width: '42vw' }}>
+    <div className="dialog-content">
+        <div className="input-row">
+            <div className="input-column">
+                <div className="input-with-icon">
+                    <InputText className="mb-2" name="FACATEG_NAME" value={formData.FACATEG_NAME} onChange={handleInputChange} placeholder="Category Name" style={{ width: 'calc(100% - 0px)' }} />
+                    <Button icon="pi pi-search" className="p-button-raised p-button-info p-button-sm" onClick={handleSearchModalOpen} />
+                </div>
+                <InputText className="mb-2" name="ASSETACCT_CODE" value={formData.ASSETACCT_CODE} onChange={handleInputChange} placeholder="Asset Account Code" />
+                <InputText className="mb-2" name="EXPACCT_CODE" value={formData.EXPACCT_CODE} onChange={handleInputChange} placeholder="Expense Account Code" />
+                <InputText className="mb-2" name="LOSSACCT_CODE" value={formData.LOSSACCT_CODE} onChange={handleInputChange} placeholder="Loss Account Code" />
+                <InputText className="mb-2" name="ACCUMACCT_CODE" value={formData.ACCUMACCT_CODE} onChange={handleInputChange} placeholder="Accumulated Account Code" />
+            </div>
+            <div className="input-column">
+                <InputText className="mb-2" name="GAINACCT_CODE" value={formData.GAINACCT_CODE} onChange={handleInputChange} placeholder="Gain Account Code" />
+                <InputText className="mb-2" name="ARACCT_CODE" value={formData.ARACCT_CODE} onChange={handleInputChange} placeholder="Accounts Receivable Account Code" />
+                <InputText className="mb-2" name="SALESACCT_CODE" value={formData.SALESACCT_CODE} onChange={handleInputChange} placeholder="Sales Account Code" />
+                <InputText name="CLEARINGACCT_CODE" value={formData.CLEARINGACCT_CODE} onChange={handleInputChange} placeholder="Clearing Account Code" />
+            </div>
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'center' }}>
+        <Button label="Update/Insert" className="p-button-raised p-button-success" style={{ width: '100%' }} onClick={handleUpdateInsert} />
+</div>
+    </div>
+</Dialog>
+            <Dialog visible={modalVisible} onHide={handleModalClose} header="Search Modal" modal>
+                <div className="table-container">
+                    <DataTable
+                        value={modalData}
+                        selectionMode="single"
+                        selection={selectedFacategCode}
+                        onSelectionChange={(e) => {
+                            setSelectedFacategCode(e.value ? e.value.FACATEG_CODE : '');
+                            setSelectedFacategName(e.value ? e.value.FACATEG_NAME : '');
+                        }}
+                    >
+                        <Column
+                            header={<span style={{ visibility: 'hidden' }}>Select</span>}
+                            style={{ width: '3em' }}
+                            body={rowData => <i className="pi pi-check" onClick={() => handleRowSelect(rowData)} />}
+                        />
+                        <Column field="FACATEG_CODE" header="Category Code" />
+                        <Column field="FACATEG_NAME" header="Category Name" />
+                        <Column field="ASSETACCT_CODE" header="Asset Account Code" />
+                        <Column field="ACCUMACCT_CODE" header="Accumulated Account Code" />
+                        <Column field="EXPACCT_CODE" header="Expenses Account Code" />
+                        <Column field="GAINACCT_CODE" header="Gain Account Code" />
+                        <Column field="LOSSACCT_CODE" header="Loss Account Code" />
+                        <Column field="ARACCT_CODE" header="AR Account Code" />
+                        <Column field="SALESACCT_CODE" header="Sales Account Code" />
+                        <Column field="CLEARINGACCT_CODE" header="Clearing Account Code" />
+                    </DataTable>
                 </div>
             </Dialog>
 
             <div className="table-container">
-                <DataTable ref={dt} value={data} paginator rows={5} rowsPerPageOptions={[5, 10, 15, 25, 50]} tableStyle={{ minWidth: '50rem' }} globalFilter={globalFilter}>
-                    <Column field="FACATEG_CODE" header="Category Code" sortable style={{ width: '150px', position: 'sticky', left: '0', zIndex: '1', backgroundColor: 'white' }} frozen></Column>
-                    <Column field="FACATEG_NAME" header="Category Name" sortable style={{ width: '200px', position: 'sticky', left: '150px', zIndex: '1', backgroundColor: 'white' }} frozen></Column>
-                    <Column field="ASSETACCT_CODE" header="Asset Account Code" sortable style={{ width: '20%' }}></Column>
-                    <Column field="ACCUMACCT_CODE" header="Accumulated Account Code" sortable style={{ width: '20%' }}></Column>
-                    <Column field="EXPACCT_CODE" header="Expenses Account Code" sortable style={{ width: '20%' }}></Column>
-                    <Column field="GAINACCT_CODE" header="Gain Account Code" sortable style={{ width: '20%' }}></Column>
-                    <Column field="LOSSACCT_CODE" header="Loss Account Code" sortable style={{ width: '20%' }}></Column>
-                    <Column field="ARACCT_CODE" header="AR Account Code" sortable style={{ width: '20%' }}></Column>
-                    <Column field="SALESACCT_CODE" header="Sales Account Code" sortable style={{ width: '20%' }}></Column>
-                    <Column field="CLEARINGACCT_CODE" header="Clearing Account Code" sortable style={{ width: '20%' }}></Column>
-                    <Column
-                        body={(rowData) => (
-                            <div className="action-buttons">
-                                <Button
-                                    icon="pi pi-pencil"
-                                    className="p-button-rounded p-button-warning mx-2 custom-green-button"
-                                    onClick={() => handleEdit(rowData)}
-                                />
-                                <Button
-                                    icon="pi pi-trash"
-                                    className="p-button-rounded p-button-danger "
-                                    onClick={() => handleDelete(rowData)}
-                                />
-                            </div>
-                        )}
-                        style={{ textAlign: 'center', width: '150px', position: 'sticky', right: '0', zIndex: '1', backgroundColor: 'white' }}
-                    />
-                </DataTable>
+            <DataTable ref={dt} value={data} paginator rows={10} rowsPerPageOptions={[5, 10, 15, 20, 25]}
+                        paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+                        currentPageReportTemplate="Showing {first} to {last} of {totalRecords}" globalFilter={globalFilter} header={header}>
+    <Column field="FACATEG_CODE" header="Category Code" sortable style={{ width: '150px', position: 'sticky', left: '0', zIndex: '1', backgroundColor: 'white' }} frozen></Column>
+    <Column field="FACATEG_NAME" header="Category Name" sortable style={{ width: '200px', position: 'sticky', left: '150px', zIndex: '1', backgroundColor: 'white' }} frozen></Column>
+    <Column field="ASSETACCT_CODE" header="Asset Account Code" sortable style={{ width: '20%', backgroundColor: 'white' }}></Column>
+    <Column field="ACCUMACCT_CODE" header="Accumulated Account Code" sortable style={{ width: '20%', backgroundColor: 'white' }}></Column>
+    <Column field="EXPACCT_CODE" header="Expenses Account Code" sortable style={{ width: '20%', backgroundColor: 'white' }}></Column>
+    <Column field="GAINACCT_CODE" header="Gain Account Code" sortable style={{ width: '20%', backgroundColor: 'white' }}></Column>
+    <Column field="LOSSACCT_CODE" header="Loss Account Code" sortable style={{ width: '20%', backgroundColor: 'white' }}></Column>
+    <Column field="ARACCT_CODE" header="AR Account Code" sortable style={{ width: '20%', backgroundColor: 'white' }}></Column>
+    <Column field="SALESACCT_CODE" header="Sales Account Code" sortable style={{ width: '20%', backgroundColor: 'white' }}></Column>
+    <Column field="CLEARINGACCT_CODE" header="Clearing Account Code" sortable style={{ width: '20%', backgroundColor: 'white' }}></Column>
+    <Column
+        body={(rowData) => (
+            <div className="action-buttons">
+                <Button
+                    icon="pi pi-pencil"
+                    className="p-button-rounded p-button-warning mx-2 custom-green-button"
+                    onClick={() => handleEdit(rowData)}
+                />
+                <Button
+                    icon="pi pi-trash"
+                    className="p-button-rounded p-button-danger "
+                    onClick={() => handleDelete(rowData)}
+                />
+            </div>
+        )}
+        style={{ textAlign: 'center', width: '150px', position: 'sticky', right: '0', zIndex: '1', backgroundColor: 'white' }}
+    />
+</DataTable>
             </div>
         </div>
     );

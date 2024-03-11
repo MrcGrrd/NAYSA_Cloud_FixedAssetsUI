@@ -1,3 +1,7 @@
+#root {
+  max-width: 6000px;
+}
+
 html {
   font-size: 14px;
 }
@@ -15,6 +19,7 @@ body {
 .card {
   background: var(--surface-card);
   padding: 2rem;
+  width: 100%;
   border-radius: 10px;
   margin-bottom: 1rem;
 }
@@ -53,6 +58,19 @@ body {
   background-color: #22c55e !important;
   border-color: #22c55e !important;
 }
+
+.input-with-icon {
+  position: relative;
+}
+
+.input-with-icon .p-button {
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin-top: 0.15rem; /* Adjust this value as needed */
+  margin-left: 10px;
+}
+
 
 
 
