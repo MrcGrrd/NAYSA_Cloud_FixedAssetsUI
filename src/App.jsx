@@ -7,8 +7,8 @@ import { Dialog } from 'primereact/dialog';
 import { SplitButton } from 'primereact/splitbutton';
 import { Tooltip } from 'primereact/tooltip';
 import { saveAs } from 'file-saver';
-import Swal from 'sweetalert2'; 
-    
+import Swal from 'sweetalert2';
+
 import './App.css';
 
 export default function App() {
@@ -31,22 +31,28 @@ export default function App() {
     const [selectedRow, setSelectedRow] = useState(null);
     const [modalVisible, setModalVisible] = useState(false);
     const [modalData, setModalData] = useState([]);
-    const dt = useRef(null);
+    const [modalSearchText, setModalSearchText] = useState('');
     const [selectedFacategName, setSelectedFacategName] = useState(null);
     const [selectedFacategCode, setSelectedFacategCode] = useState(null);
+    const dt = useRef(null);
 
-    const exportColumns = [
-        { title: "Category Code", dataKey: "FACATEG_CODE" },
-        { title: "Category Name", dataKey: "FACATEG_NAME" },
-        { title: "Asset Account Code", dataKey: "ASSETACCT_CODE" },
-        { title: "Accumulated Account Code", dataKey: "ACCUMACCT_CODE" },
-        { title: "Expenses Account Code", dataKey: "EXPACCT_CODE" },
-        { title: "Gain Account Code", dataKey: "GAINACCT_CODE" },
-        { title: "Loss Account Code", dataKey: "LOSSACCT_CODE" },
-        { title: "AR Account Code", dataKey: "ARACCT_CODE" },
-        { title: "Sales Account Code", dataKey: "SALESACCT_CODE" },
-        { title: "Clearing Account Code", dataKey: "CLEARINGACCT_CODE" },
-    ];
+    useEffect(() => {
+        if (!displayDialog) {
+            setFormData({
+                FACATEG_CODE: '',
+                FACATEG_NAME: '',
+                ASSETACCT_CODE: '',
+                ACCUMACCT_CODE: '',
+                EXPACCT_CODE: '',
+                GAINACCT_CODE: '',
+                LOSSACCT_CODE: '',
+                ARACCT_CODE: '',
+                SALESACCT_CODE: '',
+                CLEARINGACCT_CODE: ''
+            });
+        }
+    }, [displayDialog]);
+    
 
     useEffect(() => {
         fetchData();
@@ -93,7 +99,7 @@ export default function App() {
             alert('Please fill in all required fields');
             return;
         }
-    
+
         if (selectedRow) {
             const updatedData = data.map(row => {
                 if (row.FACATEG_CODE === selectedRow.FACATEG_CODE) {
@@ -105,7 +111,7 @@ export default function App() {
         } else {
             setData(prevState => [...prevState, formData]);
         }
-    
+
         setFormData({
             FACATEG_CODE: '',
             FACATEG_NAME: '',
@@ -126,8 +132,8 @@ export default function App() {
 
         setDisplayDialog(false);
     };
-    
-    
+
+
     const showDialog = () => {
         setDisplayDialog(true);
     };
@@ -163,7 +169,7 @@ export default function App() {
             }
         });
     };
-    
+
 
     const exportCSV = () => {
         dt.current.exportCSV();
@@ -173,10 +179,28 @@ export default function App() {
             'success'
         );
     };
-    
+
     const exportExcel = () => {
         import('xlsx').then((xlsx) => {
-            const worksheet = xlsx.utils.json_to_sheet(data);
+            const fieldsToExport = ['FACATEG_CODE', 
+                                    'FACATEG_NAME', 
+                                    'ASSETACCT_CODE', 
+                                    'ACCUMACCT_CODE', 
+                                    'EXPACCT_CODE', 
+                                    'GAINACCT_CODE', 
+                                    'LOSSACCT_CODE', 
+                                    'ARACCT_CODE', 
+                                    'SALESACCT_CODE', 
+                                    'CLEARINGACCT_CODE'];
+        
+            const filteredData = data.map(row => {
+                return fieldsToExport.reduce((obj, field) => {
+                    obj[field] = row[field];
+                    return obj;
+                }, {});
+            });
+    
+            const worksheet = xlsx.utils.json_to_sheet(filteredData);
             const workbook = xlsx.utils.book_new();
             xlsx.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
     
@@ -194,6 +218,20 @@ export default function App() {
         });
     };
     
+
+    const exportColumns = [
+        { header: 'Category Code', dataKey: 'FACATEG_CODE' },
+        { header: 'Category Name', dataKey: 'FACATEG_NAME' },
+        { header: 'Asset Account Code', dataKey: 'ASSETACCT_CODE' },
+        { header: 'Exp Account Code', dataKey: 'EXPACCT_CODE' },
+        { header: 'Loss Account Code', dataKey: 'LOSSACCT_CODE' },
+        { header: 'Accumulative Account Code', dataKey: 'ACCUMACCT_CODE' },
+        { header: 'Gain Account Code', dataKey: 'GAINACCT_CODE' },
+        { header: 'AR Account Code', dataKey: 'ARACCT_CODE' },
+        { header: 'Sales Account Code', dataKey: 'SALESACCT_CODE' },
+        { header: 'Clearing Account Code', dataKey: 'CLEARINGACCT_CODE' }
+    ];
+    
     const exportPdf = () => {
         import('jspdf').then((jsPDF) => {
             import('jspdf-autotable').then((module) => {
@@ -209,7 +247,7 @@ export default function App() {
             });
         });
     };
-    
+
     const exportItems = [
         { label: 'CSV', command: exportCSV },
         { label: 'Excel', command: exportExcel },
@@ -217,13 +255,13 @@ export default function App() {
     ];
 
     const header = (
-        <div className="p-input-icon-left " style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div className="p-input-icon-left" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div style={{ position: 'relative' }}>
                 <i className="pi pi-search" style={{ position: 'absolute', left: '0.5rem', top: '50%', transform: 'translateY(-50%)' }} />
                 <InputText type="search" value={globalFilter} onChange={handleGlobalFilterChange} placeholder="Search..." style={{ paddingLeft: '2rem' }} />
             </div>
             <div>
-                <Button label="" icon="pi pi-plus" className="p-button-raised p-button-success p-button-sm mr-2" onClick={showDialog} />
+                <Button label="Add" icon="pi pi-plus" className="p-button-raised p-button-success p-button-sm mr-2" onClick={showDialog} />
                 <SplitButton label="Export" model={exportItems} className="p-button-help" />
             </div>
         </div>
@@ -231,7 +269,7 @@ export default function App() {
 
     const handleSearchModalOpen = async () => {
         try {
-            const response = await fetch('http://localhost:8000/api/index');
+            const response = await fetch('http://localhost:8000/api/coamast');
             if (!response.ok) {
                 throw new Error('Failed to fetch data');
             }
@@ -247,19 +285,28 @@ export default function App() {
         setModalVisible(false);
         setFormData(prevState => ({
             ...prevState,
-            FACATEG_CODE: selectedFacategCode,
-            FACATEG_NAME: selectedFacategName
+            ACCT_CODE: selectedFacategCode,
+            ACCT_NAME: selectedFacategName
         }));
     };
 
     const handleRowSelect = (rowData) => {
         setFormData(prevState => ({
             ...prevState,
-            FACATEG_CODE: rowData.FACATEG_CODE,
-            FACATEG_NAME: rowData.FACATEG_NAME
+            FACATEG_CODE: rowData.ACCT_CODE,
+            FACATEG_NAME: rowData.ACCT_NAME
         }));
         setModalVisible(false);
     };
+
+    const handleModalSearchChange = (e) => {
+        setModalSearchText(e.target.value);
+    };
+
+    const filteredModalData = modalData.filter(item =>
+        item.ACCT_CODE.toLowerCase().includes(modalSearchText.toLowerCase()) ||
+        item.ACCT_NAME.toLowerCase().includes(modalSearchText.toLowerCase())
+    );
 
     return (
         <div className='card'>
@@ -267,14 +314,18 @@ export default function App() {
 
             {error && <p>Error fetching data: {error.message}</p>}
             <Dialog visible={displayDialog} onHide={onHideDialog} header="Add/Edit Data" modal style={{ width: '42vw' }}>
-    <div className="dialog-content">
-        <div className="input-row">
+                <div className="dialog-content">
+                <div className="input-row">
             <div className="input-column">
-                <div className="input-with-icon">
-                    <InputText className="mb-2" name="FACATEG_NAME" value={formData.FACATEG_NAME} onChange={handleInputChange} placeholder="Category Name" style={{ width: 'calc(100% - 0px)' }} />
-                    <Button icon="pi pi-search" className="p-button-raised p-button-info p-button-sm" onClick={handleSearchModalOpen} />
-                </div>
-                <InputText className="mb-2" name="ASSETACCT_CODE" value={formData.ASSETACCT_CODE} onChange={handleInputChange} placeholder="Asset Account Code" />
+                <InputText className="mb-2" name="FACATEG_CODE" value={formData.FACATEG_CODE} onChange={handleInputChange} placeholder="Category Code" style={{ width: 'calc(100% - 0px)' }} disabled/>
+                <div className="input-group mb-3">
+                <InputText className="mb-2" name="FACATEG_NAME" value={formData.FACATEG_NAME} onChange={handleInputChange} placeholder="Category Name" style={{ width: '90%', borderRadius: '0.2rem', height: '2.2rem' }} />   
+                <button className="btn btn-primary border-custom" onClick={handleSearchModalOpen} type="button" id="button-addon2" style={{ borderRadius: '0.2rem', height: '2.2rem' }}><i className="icon pi pi-search"></i></button>
+                    </div> 
+                <InputText className="mb-2" name="ASSETACCT_CODE" style={{ width: 'calc(100% - 0px)' }} placeholder="Enter Class Code" value={formData.ASSETACCT_CODE} onChange={handleInputChange}/>
+                        
+                {/* <InputText className="mb-2" name="ASSETACCT_CODE" value={formData.ASSETACCT_CODE} onChange={handleInputChange} placeholder="Asset Account Code" />
+                <Button icon="pi pi-search" className="lookup p-button-raised p-button-info p-button-sm" onClick={handleSearchModalOpen} /> */}
                 <InputText className="mb-2" name="EXPACCT_CODE" value={formData.EXPACCT_CODE} onChange={handleInputChange} placeholder="Expense Account Code" />
                 <InputText className="mb-2" name="LOSSACCT_CODE" value={formData.LOSSACCT_CODE} onChange={handleInputChange} placeholder="Loss Account Code" />
                 <InputText className="mb-2" name="ACCUMACCT_CODE" value={formData.ACCUMACCT_CODE} onChange={handleInputChange} placeholder="Accumulated Account Code" />
@@ -289,12 +340,17 @@ export default function App() {
         <div style={{ display: 'flex', justifyContent: 'center' }}>
         <Button label="Update/Insert" className="p-button-raised p-button-success" style={{ width: '100%' }} onClick={handleUpdateInsert} />
 </div>
-    </div>
-</Dialog>
+                </div>
+            </Dialog>
+
             <Dialog visible={modalVisible} onHide={handleModalClose} header="Search Modal" modal>
+                <div className="p-input-icon-left" style={{ position: 'relative' }}>
+                    <i className="pi pi-search" style={{ position: 'absolute', left: '0.5rem', top: '50%', transform: 'translateY(-50%)' }} />
+                    <InputText type="search" value={modalSearchText} onChange={handleModalSearchChange} placeholder="Search..." style={{ paddingLeft: '2rem', marginBottom: '5px' }} />
+                </div>
                 <div className="table-container">
                     <DataTable
-                        value={modalData}
+                        value={filteredModalData}
                         selectionMode="single"
                         selection={selectedFacategCode}
                         onSelectionChange={(e) => {
@@ -305,54 +361,49 @@ export default function App() {
                         <Column
                             header={<span style={{ visibility: 'hidden' }}>Select</span>}
                             style={{ width: '3em' }}
-                            body={rowData => <i className="pi pi-check" onClick={() => handleRowSelect(rowData)} />}
+                            body={rowData => <i className="modal pi pi-check" onClick={() => handleRowSelect(rowData)} />}
                         />
-                        <Column field="FACATEG_CODE" header="Category Code" />
-                        <Column field="FACATEG_NAME" header="Category Name" />
-                        <Column field="ASSETACCT_CODE" header="Asset Account Code" />
-                        <Column field="ACCUMACCT_CODE" header="Accumulated Account Code" />
-                        <Column field="EXPACCT_CODE" header="Expenses Account Code" />
-                        <Column field="GAINACCT_CODE" header="Gain Account Code" />
-                        <Column field="LOSSACCT_CODE" header="Loss Account Code" />
-                        <Column field="ARACCT_CODE" header="AR Account Code" />
-                        <Column field="SALESACCT_CODE" header="Sales Account Code" />
-                        <Column field="CLEARINGACCT_CODE" header="Clearing Account Code" />
+                        <Column field="ACCT_CODE" header="Account Code" />
+                        <Column field="ACCT_NAME" header="Account Name" />
+                        <Column field="ACCT_BALANCE" header="Account Balance" />
+                        <Column field="REQ_SL" header="REQ_SL" />
+                        <Column field="REQ_RC" header="REQ_RC" />
                     </DataTable>
                 </div>
             </Dialog>
 
             <div className="table-container">
-            <DataTable ref={dt} value={data} paginator rows={10} rowsPerPageOptions={[5, 10, 15, 20, 25]}
-                        paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-                        currentPageReportTemplate="Showing {first} to {last} of {totalRecords}" globalFilter={globalFilter} header={header}>
-    <Column field="FACATEG_CODE" header="Category Code" sortable style={{ width: '150px', position: 'sticky', left: '0', zIndex: '1', backgroundColor: 'white' }} frozen></Column>
-    <Column field="FACATEG_NAME" header="Category Name" sortable style={{ width: '200px', position: 'sticky', left: '150px', zIndex: '1', backgroundColor: 'white' }} frozen></Column>
-    <Column field="ASSETACCT_CODE" header="Asset Account Code" sortable style={{ width: '20%', backgroundColor: 'white' }}></Column>
-    <Column field="ACCUMACCT_CODE" header="Accumulated Account Code" sortable style={{ width: '20%', backgroundColor: 'white' }}></Column>
-    <Column field="EXPACCT_CODE" header="Expenses Account Code" sortable style={{ width: '20%', backgroundColor: 'white' }}></Column>
-    <Column field="GAINACCT_CODE" header="Gain Account Code" sortable style={{ width: '20%', backgroundColor: 'white' }}></Column>
-    <Column field="LOSSACCT_CODE" header="Loss Account Code" sortable style={{ width: '20%', backgroundColor: 'white' }}></Column>
-    <Column field="ARACCT_CODE" header="AR Account Code" sortable style={{ width: '20%', backgroundColor: 'white' }}></Column>
-    <Column field="SALESACCT_CODE" header="Sales Account Code" sortable style={{ width: '20%', backgroundColor: 'white' }}></Column>
-    <Column field="CLEARINGACCT_CODE" header="Clearing Account Code" sortable style={{ width: '20%', backgroundColor: 'white' }}></Column>
-    <Column
-        body={(rowData) => (
-            <div className="action-buttons">
-                <Button
-                    icon="pi pi-pencil"
-                    className="p-button-rounded p-button-warning mx-2 custom-green-button"
-                    onClick={() => handleEdit(rowData)}
-                />
-                <Button
-                    icon="pi pi-trash"
-                    className="p-button-rounded p-button-danger "
-                    onClick={() => handleDelete(rowData)}
-                />
-            </div>
-        )}
-        style={{ textAlign: 'center', width: '150px', position: 'sticky', right: '0', zIndex: '1', backgroundColor: 'white' }}
-    />
-</DataTable>
+                <DataTable ref={dt} value={data} paginator rows={10} rowsPerPageOptions={[5, 10, 15, 20, 25]}
+                    paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+                    currentPageReportTemplate="Showing {first} to {last} of {totalRecords}" globalFilter={globalFilter} header={header}>
+                    <Column field="FACATEG_CODE" header="Category Code" sortable style={{ width: '150px', position: 'sticky', left: '0', zIndex: '1', backgroundColor: 'white' }} frozen></Column>
+                    <Column field="FACATEG_NAME" header="Category Name" sortable style={{ width: '200px', position: 'sticky', left: '150px', zIndex: '1', backgroundColor: 'white' }} frozen></Column>
+                    <Column field="ASSETACCT_CODE" header="Asset Account Code" sortable style={{ width: '20%', backgroundColor: 'white' }}></Column>
+                    <Column field="ACCUMACCT_CODE" header="Accumulated Account Code" sortable style={{ width: '20%', backgroundColor: 'white' }}></Column>
+                    <Column field="EXPACCT_CODE" header="Expenses Account Code" sortable style={{ width: '20%', backgroundColor: 'white' }}></Column>
+                    <Column field="GAINACCT_CODE" header="Gain Account Code" sortable style={{ width: '20%', backgroundColor: 'white' }}></Column>
+                    <Column field="LOSSACCT_CODE" header="Loss Account Code" sortable style={{ width: '20%', backgroundColor: 'white' }}></Column>
+                    <Column field="ARACCT_CODE" header="AR Account Code" sortable style={{ width: '20%', backgroundColor: 'white' }}></Column>
+                    <Column field="SALESACCT_CODE" header="Sales Account Code" sortable style={{ width: '20%', backgroundColor: 'white' }}></Column>
+                    <Column field="CLEARINGACCT_CODE" header="Clearing Account Code" sortable style={{ width: '20%', backgroundColor: 'white' }}></Column>
+                    <Column
+                        body={(rowData) => (
+                            <div className="action-buttons">
+                                <Button
+                                    icon="pi pi-pencil"
+                                    className="p-button-rounded p-button-warning mx-2 custom-green-button"
+                                    onClick={() => handleEdit(rowData)}
+                                />
+                                <Button
+                                    icon="pi pi-trash"
+                                    className="p-button-rounded p-button-danger "
+                                    onClick={() => handleDelete(rowData)}
+                                />
+                            </div>
+                        )}
+                        style={{ textAlign: 'center', width: '150px', position: 'sticky', right: '0', zIndex: '1', backgroundColor: 'white' }}
+                    />
+                </DataTable>
             </div>
         </div>
     );

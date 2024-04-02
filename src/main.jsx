@@ -7,9 +7,11 @@ import 'primereact/resources/primereact.css';
 import 'primereact/resources/themes/lara-light-indigo/theme.css';
 import App from './App.jsx'
 import './index.css'
+import HeaderDetail from './HeaderDetail.jsx';
+import Sample from './sample.jsx';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <App />
+    <Sample/>
   </React.StrictMode>,
 )
