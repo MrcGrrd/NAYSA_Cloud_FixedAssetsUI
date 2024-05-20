@@ -257,7 +257,7 @@ export default function App() {
     const header = (
         <div className="p-input-icon-left" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div style={{ position: 'relative' }}>
-                <i className="pi pi-search" style={{ position: 'absolute', left: '0.5rem', top: '50%', transform: 'translateY(-50%)' }} />
+                <i className="pi pi-search" style={{ position: 'absolute', left: '0.1rem', top: '50%', transform: 'translateY(-50%)' }} />
                 <InputText type="search" value={globalFilter} onChange={handleGlobalFilterChange} placeholder="Search..." style={{ paddingLeft: '2rem' }} />
             </div>
             <div>
@@ -322,19 +322,19 @@ export default function App() {
                 <InputText className="mb-2" name="FACATEG_NAME" value={formData.FACATEG_NAME} onChange={handleInputChange} placeholder="Category Name" style={{ width: '90%', borderRadius: '0.2rem', height: '2.2rem' }} />   
                 <button className="btn btn-primary border-custom" onClick={handleSearchModalOpen} type="button" id="button-addon2" style={{ borderRadius: '0.2rem', height: '2.2rem' }}><i className="icon pi pi-search"></i></button>
                     </div> 
-                <InputText className="mb-2" name="ASSETACCT_CODE" style={{ width: 'calc(100% - 0px)' }} placeholder="Enter Class Code" value={formData.ASSETACCT_CODE} onChange={handleInputChange}/>
+                <InputText className="mb-2" name="ASSETACCT_CODE" style={{ width: 'calc(100% - 0px)'  }} placeholder="Enter Class Code" value={formData.ASSETACCT_CODE} onChange={handleInputChange} />
                         
                 {/* <InputText className="mb-2" name="ASSETACCT_CODE" value={formData.ASSETACCT_CODE} onChange={handleInputChange} placeholder="Asset Account Code" />
                 <Button icon="pi pi-search" className="lookup p-button-raised p-button-info p-button-sm" onClick={handleSearchModalOpen} /> */}
-                <InputText className="mb-2" name="EXPACCT_CODE" value={formData.EXPACCT_CODE} onChange={handleInputChange} placeholder="Expense Account Code" />
-                <InputText className="mb-2" name="LOSSACCT_CODE" value={formData.LOSSACCT_CODE} onChange={handleInputChange} placeholder="Loss Account Code" />
-                <InputText className="mb-2" name="ACCUMACCT_CODE" value={formData.ACCUMACCT_CODE} onChange={handleInputChange} placeholder="Accumulated Account Code" />
+                <InputText className="mb-2" name="EXPACCT_CODE" value={formData.EXPACCT_CODE} onChange={handleInputChange} placeholder="Expense Account Code" style={{border: '1px solid #ccc', borderRadius: '4px', padding: '5px 10px', marginBottom: '10px'}} />
+                <InputText className="mb-2" name="LOSSACCT_CODE" value={formData.LOSSACCT_CODE} onChange={handleInputChange} placeholder="Loss Account Code" style={{border: '1px solid #ccc', borderRadius: '4px', padding: '5px 10px', marginBottom: '10px'}} />
+                <InputText className="mb-2" name="ACCUMACCT_CODE" value={formData.ACCUMACCT_CODE} onChange={handleInputChange} placeholder="Accumulated Account Code" style={{border: '1px solid #ccc', borderRadius: '4px', padding: '5px 10px', marginBottom: '10px'}} />
             </div>
             <div className="input-column">
-                <InputText className="mb-2" name="GAINACCT_CODE" value={formData.GAINACCT_CODE} onChange={handleInputChange} placeholder="Gain Account Code" />
-                <InputText className="mb-2" name="ARACCT_CODE" value={formData.ARACCT_CODE} onChange={handleInputChange} placeholder="Accounts Receivable Account Code" />
-                <InputText className="mb-2" name="SALESACCT_CODE" value={formData.SALESACCT_CODE} onChange={handleInputChange} placeholder="Sales Account Code" />
-                <InputText name="CLEARINGACCT_CODE" value={formData.CLEARINGACCT_CODE} onChange={handleInputChange} placeholder="Clearing Account Code" />
+                <InputText className="mb-2" name="GAINACCT_CODE" value={formData.GAINACCT_CODE} onChange={handleInputChange} placeholder="Gain Account Code" style={{border: '1px solid #ccc', borderRadius: '4px', padding: '5px 10px', marginBottom: '10px'}} />
+                <InputText className="mb-2" name="ARACCT_CODE" value={formData.ARACCT_CODE} onChange={handleInputChange} placeholder="Accounts Receivable Account Code" style={{border: '1px solid #ccc', borderRadius: '4px', padding: '5px 10px', marginBottom: '10px'}} />
+                <InputText className="mb-2" name="SALESACCT_CODE" value={formData.SALESACCT_CODE} onChange={handleInputChange} placeholder="Sales Account Code" style={{border: '1px solid #ccc', borderRadius: '4px', padding: '5px 10px', marginBottom: '10px'}} />
+                <InputText name="CLEARINGACCT_CODE" value={formData.CLEARINGACCT_CODE} onChange={handleInputChange} placeholder="Clearing Account Code" style={{border: '1px solid #ccc', borderRadius: '4px', padding: '5px 10px', marginBottom: '10px'}} />
             </div>
         </div>
         <div style={{ display: 'flex', justifyContent: 'center' }}>

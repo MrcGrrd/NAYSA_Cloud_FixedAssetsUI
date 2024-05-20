@@ -9,9 +9,11 @@ import App from './App.jsx'
 import './index.css'
 import HeaderDetail from './HeaderDetail.jsx';
 import Sample from './sample.jsx';
+import FixedAsset from './FixedAsset.jsx';
+import FARR from './FARR.jsx'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <Sample/>
+    <FARR/>
   </React.StrictMode>,
 )

@@ -45,9 +45,9 @@ const data = [
   {
     employeeId: '06',
     name: 'Michael',
-    email: 'mike@email.com',
+    email: 'michael@email.com',
     position: 'Backend Developer',
-    address: 'Taguig City',
+    address: 'Makati City',
     createdAt: '2022-03-31', 
   },
   {
@@ -117,10 +117,10 @@ const data = [
   {
     employeeId: '15',
     name: 'Jamir',
-    email: 'mike@email.com',
+    email: 'jamir@email.com',
     position: 'Backend Developer',
     address: 'Taguig City',
-    createdAt: '2022-03-31', 
+    createdAt: '2022-08-16', 
   },
   {
     employeeId: '16',
@@ -157,10 +157,10 @@ const data = [
   {
     employeeId: '20',
     name: 'Kyle',
-    email: 'mike@email.com',
+    email: 'kyle@email.com',
     position: 'Backend Developer',
-    address: 'Taguig City',
-    createdAt: '2022-03-31', 
+    address: 'Muntinlupa City',
+    createdAt: '2022-10-01', 
   }
 ];
 
@@ -168,10 +168,19 @@ const Sample = () => {
   const [employeeData, setEmployeeData] = useState(data);
   const [newName, setNewName] = useState('');
   const [newEmail, setNewEmail] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(5); // Change this value according to your preference
   const [newPosition, setNewPosition] = useState('');
   const [newAddress, setNewAddress] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  let currentItems = employeeData.slice(indexOfFirstItem, indexOfLastItem);
+
+  const paginate = pageNumber => setCurrentPage(pageNumber);
 
   const onChangeInput = (e, employeeId) => {
     const { name, value } = e.target;
@@ -209,6 +218,16 @@ const Sample = () => {
     });
   };
 
+  const searchFilter = (items) => {
+    if (!searchQuery) return items;
+
+    return items.filter(item => {
+      return item.name.toLowerCase().includes(searchQuery.toLowerCase());
+    });
+  };
+
+  currentItems = searchFilter(currentItems);
+
   return (
     <div className="container">
       <div className="input-container">
@@ -220,6 +239,7 @@ const Sample = () => {
             type="text"
             onChange={(e) => setNewName(e.target.value)}
             placeholder="Type Name"
+            style={{border: '1px solid #ccc', borderRadius: '4px', padding: '5px 10px', marginBottom: '10px'}}
           />
           <label>Email:</label>
           <input
@@ -228,6 +248,7 @@ const Sample = () => {
             type="text"
             onChange={(e) => setNewEmail(e.target.value)}
             placeholder="Type Email"
+            style={{border: '1px solid #ccc', borderRadius: '4px', padding: '5px 10px', marginBottom: '10px'}}
           />
         </div>
         <div className="right-inputs">
@@ -238,6 +259,7 @@ const Sample = () => {
             type="text"
             onChange={(e) => setNewPosition(e.target.value)}
             placeholder="Type Position"
+            style={{border: '1px solid #ccc', borderRadius: '4px', padding: '5px 10px', marginBottom: '10px'}}
           />
           <label>Address:</label>
           <input
@@ -246,6 +268,7 @@ const Sample = () => {
             value={newAddress}
             onChange={(e) => setNewAddress(e.target.value)}
             placeholder="Type Address"
+            style={{border: '1px solid #ccc', borderRadius: '4px', padding: '5px 10px', marginBottom: '10px'}}
           />
           <button className="btn btn-success shadow-none" style={{ height: '30px', width: '100px', borderRadius: '0.5rem' }} onClick={addEmployee}>Add Data</button>
         </div>
@@ -264,6 +287,15 @@ const Sample = () => {
           onChange={(e) => setEndDate(e.target.value)}
         />
       </div>
+      <div className="search-container">
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Search..."
+          style={{border: '1px solid #ccc', borderRadius: '4px', padding: '5px 10px', marginBottom: '10px'}}
+        />
+      </div>
       <table>
         <thead>
           <tr>
@@ -275,7 +307,7 @@ const Sample = () => {
           </tr>
         </thead>
         <tbody>
-          {filterEmployeesByDateRange().map(({ employeeId, name, email, position, address, createdAt }) => (
+          {currentItems.map(({ employeeId, name, email, position, address, createdAt }) => (
             <tr key={employeeId}>
               <td>
                 <input
@@ -284,7 +316,8 @@ const Sample = () => {
                   type="text"
                   onChange={(e) => onChangeInput(e, employeeId)}
                   placeholder="Type Name"
-                disabled/>
+                  disabled
+                />
               </td>
               <td>
                 <input
@@ -324,6 +357,11 @@ const Sample = () => {
           ))}
         </tbody>
       </table>
+      <div className="pagination">
+        {Array.from({ length: Math.ceil(employeeData.length / itemsPerPage) }, (_, index) => (
+          <button key={index} onClick={() => paginate(index + 1)}>{index + 1}</button>
+        ))}
+      </div>
     </div>
   );
 };
