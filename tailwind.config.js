@@ -1,5 +1,3 @@
-// tailwind.config.js
-
 export const content = [
   "./src/**/*.{js,jsx,ts,tsx}",
 ];

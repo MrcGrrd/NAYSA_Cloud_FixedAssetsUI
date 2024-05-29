@@ -10,7 +10,9 @@ import './index.css'
 import HeaderDetail from './HeaderDetail.jsx';
 import Sample from './sample.jsx';
 import FixedAsset from './FixedAsset.jsx';
-import FARR from './FARR.jsx'
+import FARR from './FARR.jsx';
+import FA from './FA.jsx';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
